@@ -1,16 +1,30 @@
 .main-container {
   display: flex;
-  height: 120vh;
+  min-height: 100vh;
   color: white;
+  background-color: #051F20;
+
+  @media (max-width: 1024px) {
+    flex-direction: column;
+  }
 }
 
 /* LEFT SIDE */
 .left-section {
   width: 50%;
   padding: 40px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 10vh;
+
   h1 {
-    color: #0B2B26;
+    color: #84E4A8;
     margin-bottom: 20px;
+    font-size: 4rem;
+  }
+
+  h3 {
+    font-size: 1.5rem;
   }
 
   ul {
@@ -19,6 +33,69 @@
     li {
       margin: 10px 0;
       font-size: 16px;
+      list-style: none;
+
+      span {
+        color: #84E4A8;
+        font-weight: 600;
+        font-size: 1.5rem;
+      }
+    }
+
+    .date {
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    a {
+      text-decoration: none;
+
+      button {
+        margin-top: 10px;
+        padding: 12px;
+        background: #8EB69B;
+        border: none;
+        cursor: pointer;
+        font-weight: bold;
+        border-radius: 10px;
+        width: fit-content;
+      }
+    }
+  }
+
+  /* 📱 MOBILE */
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 20px;
+    margin-top: 5vh;
+
+    h1 {
+      font-size: 2.2rem;
+      text-align: center;
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      text-align: center;
+    }
+
+    ul {
+      li {
+        font-size: 14px;
+
+        span {
+          font-size: 1.2rem;
+        }
+      }
+
+      .date {
+        font-size: 1.4rem;
+        text-align: center;
+      }
+
+      a button {
+        width: 100%;
+      }
     }
   }
 }
@@ -29,22 +106,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: auto;
 
   form {
     width: 80%;
     display: flex;
     flex-direction: column;
+    height: 80%;
 
-    label{
+
+    label {
       font-weight: 600;
     }
 
-    input, textarea, select {
+    input,
+    textarea,
+    select {
       margin: 8px 0;
       padding: 10px;
       border-radius: 6px;
       border: none;
-      
+      font-size: 14px;
+    }
+    textarea{
+      max-height: 20vh;
     }
 
     button {
@@ -54,19 +139,46 @@
       border: none;
       cursor: pointer;
       font-weight: bold;
+      border-radius: 8px;
+    }
+  }
+
+  /* 📱 MOBILE */
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 20px;
+
+    form {
+      width: 100%;
+
+      button {
+        width: 100%;
+      }
     }
   }
 }
 
+/* 📸 IMAGE PREVIEW */
 .preview {
   display: flex;
   gap: 10px;
   margin-top: 10px;
+  flex-wrap: wrap;
 
   img {
     width: 80px;
     height: 80px;
     object-fit: cover;
     border-radius: 8px;
+  }
+
+  /* 📱 MOBILE */
+  @media (max-width: 768px) {
+    justify-content: center;
+
+    img {
+      width: 70px;
+      height: 70px;
+    }
   }
 }

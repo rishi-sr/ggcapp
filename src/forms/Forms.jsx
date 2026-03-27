@@ -121,14 +121,20 @@ const Forms = () => {
 
       {/* LEFT */}
       <div className="left-section">
-        <h1>Miss & Mr. Earth NIET 🌍</h1>
-        <h3>Rules & Regulations</h3>
+        <h1>Miss & Mr. Earth NIET</h1>
+        <h3>Mr & Miss Earth NIET 26' is a flagship pageant event under the banner of  "पृथ्वी 4.0 - The Annual Earth Day Fest" organized by Green Gold Society. The pageant gives you a chance to stand in NIETians as a title holder and make your recognition in the college.</h3>
         <ul>
-          <li>Only NIET students allowed</li>
-          <li>Respect all participants</li>
-          <li>Upload clear images</li>
-          <li>No fake information</li>
-          <li>Judge decision final</li>
+          <li><span>1st Prize:</span>   Miss Earth NIET 2025    |   Mr. Earth NIET 2025</li>
+          <li><span>1st Runner Ups:</span>   Miss Evergreen NIET 2025  |    Mr. Evergreen NIET 2025   </li>
+          <span className="date">Date:</span>
+          <li><span>Registration End:</span> 7th April 2025</li>
+          <li><span>Quarter Finals:</span> 8th April 2025</li>
+          <li><span>Semi Finals:</span> 18th April 2025</li>
+          <li><span>Finals:</span> 26th April 2025</li>
+          <li>Click here 👇to check out the contest journey :</li>
+          <a href="https://www.canva.com/design/DAHFEjrx730/V-HyLmCrBx2QfN2pl94g1A/view?utm_content=DAHFEjrx730&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h72567837fd" target="_blank" rel="noopener noreferrer">
+            <button>View Journey</button>
+          </a>
         </ul>
       </div>
 
