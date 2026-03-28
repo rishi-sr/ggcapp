@@ -210,6 +210,14 @@ const Forms = () => {
             <label>Upload 3 Best Photos (Size less than 2 MB each)</label>
             <input type="file" name="photos" multiple accept="image/*" onChange={handleChange} required />
 
+            <label>Join Whatsapp Group <button>Click Here</button><br />
+              
+              <input type="radio" name="joined" required/> Joined
+            </label>
+            <a href="https://chat.whatsapp.com/DWoZsihWpvFFe1n5fJZxev?mode=gi_t" target="_blank" rel="noopener noreferrer">
+            </a>
+            
+
             <div className="preview">
               {preview.map((img, i) => <img key={i} src={img} alt="preview" />)}
             </div>
@@ -221,11 +229,8 @@ const Forms = () => {
           </form>
         ) : (
           <div className="success">
-            <h2>Join the Whatsapp Group for Updates</h2>
-            <p>Click the button below to join our Whatsapp group for the latest updates:</p>
-            <a href="https://chat.whatsapp.com/DWoZsihWpvFFe1n5fJZxev?mode=gi_t" target="_blank" rel="noopener noreferrer">
-              <button>Join Whatsapp Group</button>
-            </a>
+            <h2>Thank you for participating!!</h2>
+            
           </div>
         )}
 
