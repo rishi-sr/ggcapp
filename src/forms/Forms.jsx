@@ -188,7 +188,7 @@ const Forms = () => {
             <input name="whatsapp" onChange={handleChange} required />
 
             <label>Your Performance</label>
-            {["Dance", "Singing", "Acting", "Beat Boxing", "Instrumentals"].map(item => (
+            {["Dance", "Singing", "Acting", "Beat Boxing", "Instrumentals", "Other"].map(item => (
               <label key={item}>
                 <input type="radio" name="performance" value={item} onChange={handleChange} required />
                 {item}
