@@ -223,7 +223,7 @@ const Forms = () => {
           <div className="success">
             <h2>Join the Whatsapp Group for Updates</h2>
             <p>Click the button below to join our Whatsapp group for the latest updates:</p>
-            <a href="https://chat.whatsapp.com/ItjL2mqNyxJIfQy0CCq2n8" target="_blank" rel="noopener noreferrer">
+            <a href="https://chat.whatsapp.com/DWoZsihWpvFFe1n5fJZxev?mode=gi_t" target="_blank" rel="noopener noreferrer">
               <button>Join Whatsapp Group</button>
             </a>
           </div>
