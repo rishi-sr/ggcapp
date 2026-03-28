@@ -156,6 +156,27 @@
       }
     }
   }
+
+  .success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+
+    h2 {
+      color: #84E4A8;
+    }
+
+    button {
+      padding: 12px 20px;
+      background: #8EB69B;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 8px;
+    }
+  }
 }
 
 /* 📸 IMAGE PREVIEW */

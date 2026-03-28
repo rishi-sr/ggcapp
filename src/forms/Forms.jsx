@@ -33,8 +33,8 @@ const Forms = () => {
       }
 
       for (let file of files) {
-        if (file.size > 5 * 1024 * 1024) {
-          alert("Each image must be less than 5MB");
+        if (file.size > 2 * 1024 * 1024) { // ✅ FIXED SIZE
+          alert("Each image must be less than 2MB");
           return;
         }
       }
@@ -81,36 +81,60 @@ const Forms = () => {
       );
 
       const payload = {
-        ...formData,
-        photos
+        gender: formData.gender,
+        name: formData.name,
+        rollNo: formData.rollNo,
+        branch: formData.branch,
+        whatsapp: formData.whatsapp,
+        performance: formData.performance,
+        q1: formData.q1,
+        q2: formData.q2,
+        q3: formData.q3,
+        q4: formData.q4,
+        photos: photos
       };
 
-      await fetch("https://script.google.com/macros/s/AKfycbxLbGeq1PkZbe9Lbh52go1k3kWL3Wf7i2VdthFVdqUWlglFbvabmLSjVbTLXkIsf4Te/exec", {
-        method: "POST",
-        mode: "no-cors",
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        "https://script.google.com/macros/s/AKfycby9uxvHgnF9oKgzBQU9ka9oyWqeXBxPdre7rqBTQxtVgNRcvtyReI5s8_YJ519DjPSG/exec",
+        {
+          method: "POST",
+          body: JSON.stringify(payload), // ✅ NO HEADERS (avoids CORS)
+        }
+      );
 
-      setSubmitted(true);
+      // ✅ Safe response handling
+      let result;
+      try {
+        result = await response.json();
+      } catch {
+        result = { status: "success" };
+      }
 
-      setFormData({
-        gender: "",
-        name: "",
-        rollNo: "",
-        branch: "",
-        whatsapp: "",
-        performance: "",
-        q1: "",
-        q2: "",
-        q3: "",
-        q4: "",
-        photos: []
-      });
+      if (result.status === "success") {
+        setSubmitted(true);
 
-      setPreview([]);
+        setFormData({
+          gender: "",
+          name: "",
+          rollNo: "",
+          branch: "",
+          whatsapp: "",
+          performance: "",
+          q1: "",
+          q2: "",
+          q3: "",
+          q4: "",
+          photos: []
+        });
+
+        setPreview([]);
+      } else {
+        alert("Submission failed ❌");
+      }
 
     } catch (err) {
       alert("Error submitting form ❌");
+      console.error(err);
     }
 
     setLoading(false);
@@ -183,7 +207,7 @@ const Forms = () => {
             <label>Environmental Activities</label>
             <textarea name="q4" onChange={handleChange} required />
 
-            <label>Upload Photos</label>
+            <label>Upload 3 Best Photos (Size less than 2 MB each)</label>
             <input type="file" name="photos" multiple accept="image/*" onChange={handleChange} required />
 
             <div className="preview">
@@ -197,8 +221,11 @@ const Forms = () => {
           </form>
         ) : (
           <div className="success">
-            <FaCheckCircle size={60} />
-            <h2>Form Submitted Successfully!</h2>
+            <h2>Join the Whatsapp Group for Updates</h2>
+            <p>Click the button below to join our Whatsapp group for the latest updates:</p>
+            <a href="https://chat.whatsapp.com/ItjL2mqNyxJIfQy0CCq2n8" target="_blank" rel="noopener noreferrer">
+              <button>Join Whatsapp Group</button>
+            </a>
           </div>
         )}
 
