@@ -210,12 +210,13 @@ const Forms = () => {
             <label>Upload 3 Best Photos (Size less than 2 MB each)</label>
             <input type="file" name="photos" multiple accept="image/*" onChange={handleChange} required />
 
-            <label>Join Whatsapp Group <button>Click Here</button><br />
+            <label>Join Whatsapp Group <a href="https://chat.whatsapp.com/DWoZsihWpvFFe1n5fJZxev?mode=gi_t" target="_blank" rel="noopener noreferrer">
+            Click Here
+            </a><br />
               
               <input type="radio" name="joined" required/> Joined
             </label>
-            <a href="https://chat.whatsapp.com/DWoZsihWpvFFe1n5fJZxev?mode=gi_t" target="_blank" rel="noopener noreferrer">
-            </a>
+            
             
 
             <div className="preview">
