@@ -207,7 +207,7 @@ const Forms = () => {
             <label>Environmental Activities</label>
             <textarea name="q4" onChange={handleChange} required />
 
-            <label>Upload 3 Best Photos (Size less than 2 MB each)</label>
+            <label>Upload Your 3 Best Photos (Size less than 2 MB each and should be a full profile picture and face visible.)</label>
             <input type="file" name="photos" multiple accept="image/*" onChange={handleChange} required />
 
             <label>Join Whatsapp Group <a href="https://chat.whatsapp.com/DWoZsihWpvFFe1n5fJZxev?mode=gi_t" target="_blank" rel="noopener noreferrer">
