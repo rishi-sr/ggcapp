@@ -9,6 +9,7 @@ import {
 import "./judgepanel.scss";
 
 const JudgePanel = () => {
+    const [judge, setJudge] = useState(null);
   const [participants, setParticipants] = useState([]);
   const [scores, setScores] = useState({});
   const judgeEmail = localStorage.getItem("userEmail");
@@ -22,6 +23,18 @@ const JudgePanel = () => {
     }));
     setParticipants(data);
   };
+  const fetchJudge = async () => {
+  const snapshot = await getDocs(collection(db, "users"));
+  const users = snapshot.docs.map(doc => doc.data());
+
+  const current = users.find(u => u.email === judgeEmail);
+
+  setJudge(current);
+};
+useEffect(() => {
+  fetchParticipants();
+  fetchJudge();
+}, []);
 
   useEffect(() => {
     fetchParticipants();
@@ -73,7 +86,12 @@ const JudgePanel = () => {
 
   return (
     <div className="judge-container">
-      <h1>👨‍⚖️ Judge Panel</h1>
+        {judge && (
+  <div className="judge-header">
+    <img src={judge.photo} alt="judge" />
+    <h1>Welcome, {judge.name}</h1>
+  </div>
+)}
 
       <div className="grid">
         {participants.map((p) => (
