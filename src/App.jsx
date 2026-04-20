@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import AdminPanel from "./pages/AdminPanel";
 import Login from "./pages/Login";
 import JudgePanel from "./pages/JudgePanel";
-import Leaderboard from "./pages/Leaderboard";
+import Leaderboard from "./pages/LeaderBoard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
