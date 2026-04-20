@@ -1,14 +1,19 @@
 import React, { useState } from "react";
 import "./App.scss";
-import { BrowserRouter as Router, Routes, Route, Form } from "react-router-dom";
-import Forms from "./forms/Forms";
-import Navbar from "./components/Navbar/Navbar";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import AdminPanel from "./pages/AdminPanel";
+import Login from "./pages/Login";
+import JudgePanel from "./pages/JudgePanel";
+import Leaderboard from "./pages/Leaderboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   const [videoDone, setVideoDone] = useState(false);
 
   return (
     <>
+      {/* 🎬 VIDEO PRELOADER */}
       {!videoDone && (
         <div className="video-preloader">
           <video
@@ -21,14 +26,37 @@ const App = () => {
         </div>
       )}
 
+      {/* 🚀 MAIN APP */}
       {videoDone && (
-        <div className="app">
-          <Router>
+        <Router>
+          <div className="app">
             <Routes>
-              {/* <Route path="/" element={<Forms />} /> */}
+              {/* 🔐 LOGIN */}
+              <Route path="/" element={<Login />} />
+
+              {/* 🛠 ADMIN */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute role="admin">
+                    <AdminPanel />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* 👨‍⚖️ JUDGE */}
+              <Route
+                path="/judge"
+                element={
+                  <ProtectedRoute role="judge">
+                    <JudgePanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/leaderboard" element={<Leaderboard />} />
             </Routes>
-          </Router>
-        </div>
+          </div>
+        </Router>
       )}
     </>
   );

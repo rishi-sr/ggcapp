@@ -1,0 +1,30 @@
+.leaderboard-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #0f2027, #2c7744);
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+.leaderboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.leaderboard-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255,255,255,0.1);
+  padding: 15px;
+  border-radius: 12px;
+}
+
+.leaderboard-card img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+}
