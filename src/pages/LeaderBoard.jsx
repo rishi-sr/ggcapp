@@ -6,7 +6,7 @@ import {
   query
 } from "firebase/firestore";
 import { motion } from "framer-motion";
-import "./Leaderboard.scss";
+import "./leaderboard.scss";
 
 export default function Leaderboard() {
   const [data, setData] = useState([]);
