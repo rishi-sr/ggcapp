@@ -12,7 +12,7 @@ import {
   deleteDoc
 } from "firebase/firestore";
 import { motion } from "framer-motion";
-import "./JudgePanel.scss";
+import "./judgepanel.scss";
 
 export default function JudgePanel() {
   const [participants, setParticipants] = useState([]);
