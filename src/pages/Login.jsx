@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./login.scss";
+import "./Login.scss";
 import { auth, db } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
