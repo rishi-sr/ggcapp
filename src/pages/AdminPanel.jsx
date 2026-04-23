@@ -10,7 +10,7 @@ import {
   orderBy
 } from "firebase/firestore";
 import { motion } from "framer-motion";
-import "./AdminPanel.scss"; // make sure you created this
+import "./adminpanel.scss"; // make sure you created this
 
 export default function AdminPanel() {
   const [participants, setParticipants] = useState([]);
