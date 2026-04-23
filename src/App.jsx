@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.scss";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -8,12 +8,30 @@ import JudgePanel from "./pages/JudgePanel";
 import Leaderboard from "./pages/LeaderBoard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
+import { auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import ResultReveal from "./pages/RevealPage";
+
 const App = () => {
   const [videoDone, setVideoDone] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setLoading(false);
+
+      if (user) {
+        localStorage.setItem("userEmail", user.email);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) return <h2>Loading...</h2>;
 
   return (
     <>
-      {/* 🎬 VIDEO PRELOADER */}
       {!videoDone && (
         <div className="video-preloader">
           <video
@@ -26,36 +44,41 @@ const App = () => {
         </div>
       )}
 
-      {/* 🚀 MAIN APP */}
       {videoDone && (
         <Router>
-          <div className="app">
-            <Routes>
-              {/* 🔐 LOGIN */}
-              <Route path="/" element={<Login />} />
+          <Routes>
+            <Route path="/" element={<Login />} />
 
-              {/* 🛠 ADMIN */}
-              <Route
-                path="/admin"
-                element={
-                  <ProtectedRoute role="admin">
-                    <AdminPanel />
-                  </ProtectedRoute>
-                }
-              />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute role="admin">
+                  <AdminPanel />
+                  <ResultReveal/>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reveal"
+              element={
+                <ProtectedRoute role="admin">
+                  <ResultReveal />
+                </ProtectedRoute>
+              }
+            />
 
-              {/* 👨‍⚖️ JUDGE */}
-              <Route
-                path="/judge"
-                element={
-                  <ProtectedRoute role="judge">
-                    <JudgePanel />
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="/leaderboard" element={<Leaderboard />} />
-            </Routes>
-          </div>
+            <Route
+              path="/judge"
+              element={
+                <ProtectedRoute role="judge">
+                  <JudgePanel />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            
+          </Routes>
         </Router>
       )}
     </>

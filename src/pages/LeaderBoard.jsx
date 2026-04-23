@@ -1,79 +1,124 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { db } from "../firebase";
-import "./leaderboard.scss";
 import {
   collection,
   onSnapshot,
-  getDocs
+  query
 } from "firebase/firestore";
+import { motion } from "framer-motion";
+import "./Leaderboard.scss";
 
-const Leaderboard = () => {
-  const [participants, setParticipants] = useState([]);
-  const [leaderboard, setLeaderboard] = useState([]);
+export default function Leaderboard() {
+  const [data, setData] = useState([]);
 
-  // 📥 Fetch participants
   useEffect(() => {
-    const fetchParticipants = async () => {
-      const snapshot = await getDocs(collection(db, "participants"));
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setParticipants(data);
-    };
+    let unsubscribeList = [];
 
-    fetchParticipants();
-  }, []);
-
-  // 🔄 Listen to scores (LIVE)
-  useEffect(() => {
-    const unsubscribe = onSnapshot(
-      collection(db, "scores"),
-      (snapshot) => {
-        const scores = snapshot.docs.map(doc => doc.data());
-
-        const result = {};
-
-        // 🧮 Combine scores
-        scores.forEach((s) => {
-          if (!result[s.participantId]) {
-            result[s.participantId] = 0;
-          }
-          result[s.participantId] += s.total;
-        });
-
-        // 🔗 Merge with participants
-        const finalData = participants.map((p) => ({
-          ...p,
-          total: result[p.id] || 0
+    const unsubParticipants = onSnapshot(
+      collection(db, "participants"),
+      (pSnap) => {
+        let participants = pSnap.docs.map(d => ({
+          id: d.id,
+          ...d.data()
         }));
 
-        // 🏆 Sort ranking
-        finalData.sort((a, b) => b.total - a.total);
+        // 🔥 Remove old listeners
+        unsubscribeList.forEach(unsub => unsub());
+        unsubscribeList = [];
 
-        setLeaderboard(finalData);
+        // 🔥 Attach listener for each participant's scores
+        participants.forEach((p) => {
+          const q = query(
+            collection(db, "scores", p.id, "judges")
+          );
+
+          const unsub = onSnapshot(q, (judgeSnap) => {
+            setData(prev => {
+              let updated = [...prev];
+
+              let total = 0;
+              let count = 0;
+
+              judgeSnap.forEach(j => {
+                const d = j.data();
+
+                const sum =
+                  (d.rampWalk || 0) +
+                  (d.introduction || 0) +
+                  (d.questionnaire || 0) +
+                  (d.talent || 0);
+
+                total += sum;
+                count++;
+              });
+
+              const score = count > 0 ? total : 0;
+
+              // 🔥 Update or insert
+              const index = updated.findIndex(x => x.id === p.id);
+
+              const entry = {
+                id: p.id,
+                name: p.name,
+                gender: p.gender,
+                image: p.image,
+                score
+              };
+
+              if (index >= 0) updated[index] = entry;
+              else updated.push(entry);
+
+              // 🔥 Sort
+              updated.sort((a, b) => b.score - a.score);
+
+              return updated;
+            });
+          });
+
+          unsubscribeList.push(unsub);
+        });
       }
     );
 
-    return () => unsubscribe();
-  }, [participants]);
+    return () => {
+      unsubParticipants();
+      unsubscribeList.forEach(unsub => unsub());
+    };
+  }, []);
+
+  const girls = data.filter(d => d.gender === "female");
+  const boys = data.filter(d => d.gender === "male");
+
+  const renderList = (list) =>
+    list.map((d, i) => (
+      <motion.div
+        key={d.id}
+        className={`leaderboard-card rank-${i}`}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="rank">#{i + 1}</div>
+        <img src={d.image} alt={d.name} />
+        <div className="info">
+          <h4>{d.name}</h4>
+          <p>{d.score}</p>
+        </div>
+      </motion.div>
+    ));
 
   return (
     <div className="leaderboard-container">
-      <h1>🏆 Leaderboard</h1>
+      <h1>🏆 Grand Leaderboard</h1>
 
-      <div className="leaderboard-list">
-        {leaderboard.map((p, index) => (
-          <div className="leaderboard-card" key={p.id}>
-            <h2>#{index + 1}</h2>
-            <img src={p.photo} alt="" />
-            <h3>{p.name}</h3>
-            <p>Total Score: {p.total}</p>
-          </div>
-        ))}
+      <div className="section">
+        <h2>👩 Girls Ranking</h2>
+        <div className="leaderboard-list">{renderList(girls)}</div>
+      </div>
+
+      <div className="section">
+        <h2>👨 Boys Ranking</h2>
+        <div className="leaderboard-list">{renderList(boys)}</div>
       </div>
     </div>
   );
-};
-
-export default Leaderboard;
+}

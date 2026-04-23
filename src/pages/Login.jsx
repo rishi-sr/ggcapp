@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import "./Login.scss";
+import "./login.scss";
 import { auth, db } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { collection, getDocs } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -17,56 +19,71 @@ const Login = () => {
     }
 
     try {
-      // 🔐 Firebase login
-      await signInWithEmailAndPassword(auth, email, password);
+      setLoading(true);
 
-      // 🔍 Get role from Firestore
-      const snapshot = await getDocs(collection(db, "users"));
-      const users = snapshot.docs.map(doc => doc.data());
+      // 🔐 Firebase Auth Login
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
+      const uid = userCred.user.uid;
 
-      const currentUser = users.find(u => u.email === email);
+      // 🔥 SECURE: get role using UID
+      const userDoc = await getDoc(doc(db, "users", uid));
 
-      if (!currentUser) {
+      if (!userDoc.exists()) {
         alert("User role not found ❌");
         return;
       }
 
-      // 💾 Save session
-      localStorage.setItem("userRole", currentUser.role);
-      localStorage.setItem("userEmail", currentUser.email);
+      const userData = userDoc.data();
 
-      // 🎯 Redirect
-      if (currentUser.role === "admin") {
+      // 💾 Store session
+      localStorage.setItem("userRole", userData.role);
+      localStorage.setItem("uid", uid);
+
+      // 🎯 Redirect based on role
+      if (userData.role === "admin") {
         navigate("/admin");
-      } else {
+      } else if (userData.role === "judge") {
         navigate("/judge");
+      } else {
+        alert("Invalid role ❌");
       }
 
     } catch (error) {
       console.error(error);
       alert("Invalid credentials ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <h2>🌿 GGC Login</h2>
+      <motion.div
+        className="login-card"
+        initial={{ opacity: 0, y: 50, scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h2>🌿 GGC Finale Login</h2>
 
         <input
           type="email"
           placeholder="Enter Email"
+          value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
 
         <input
           type="password"
           placeholder="Enter Password"
+          value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button onClick={handleLogin}>Login</button>
-      </div>
+        <button onClick={handleLogin} disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
+      </motion.div>
     </div>
   );
 };

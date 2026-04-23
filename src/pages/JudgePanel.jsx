@@ -1,148 +1,177 @@
-import React, { useEffect, useState } from "react";
-import { db } from "../firebase";
+import { useEffect, useState } from "react";
+import { db, auth } from "../firebase";
 import {
   collection,
-  getDocs,
+  doc,
   setDoc,
-  doc
+  onSnapshot,
+  query,
+  orderBy,
+  getDocs,
+  getDoc,
+  deleteDoc
 } from "firebase/firestore";
-import "./judgepanel.scss";
+import { motion } from "framer-motion";
+import "./JudgePanel.scss";
 
-const JudgePanel = () => {
-    const [judge, setJudge] = useState(null);
+export default function JudgePanel() {
   const [participants, setParticipants] = useState([]);
   const [scores, setScores] = useState({});
-  const judgeEmail = localStorage.getItem("userEmail");
+  const [saved, setSaved] = useState({});
+  const [judge, setJudge] = useState(null);
 
-  // 📥 Fetch participants
-  const fetchParticipants = async () => {
-    const snapshot = await getDocs(collection(db, "participants"));
-    const data = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
-    setParticipants(data);
-  };
-  const fetchJudge = async () => {
-  const snapshot = await getDocs(collection(db, "users"));
-  const users = snapshot.docs.map(doc => doc.data());
+  const judgeId = auth.currentUser?.uid;
 
-  const current = users.find(u => u.email === judgeEmail);
-
-  setJudge(current);
-};
-useEffect(() => {
-  fetchParticipants();
-  fetchJudge();
-}, []);
-
+  // 🔥 GET JUDGE INFO
   useEffect(() => {
-    fetchParticipants();
+    const fetchJudge = async () => {
+      if (!judgeId) return;
+
+      const snap = await getDoc(doc(db, "users", judgeId));
+      if (snap.exists()) setJudge(snap.data());
+    };
+
+    fetchJudge();
+  }, [judgeId]);
+
+  // 🔥 PARTICIPANTS
+  useEffect(() => {
+    const q = query(collection(db, "participants"), orderBy("order"));
+
+    const unsubscribe = onSnapshot(q, (snap) => {
+      setParticipants(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  // ✏️ Handle input change
-  const handleChange = (id, field, value) => {
+  // 🔥 LOAD PREVIOUS SCORES
+  useEffect(() => {
+    const loadScores = async () => {
+      if (!judgeId) return;
+
+      const snap = await getDocs(collection(db, "participants"));
+      let temp = {};
+
+      for (let p of snap.docs) {
+        const scoreSnap = await getDocs(
+          collection(db, "scores", p.id, "judges")
+        );
+
+        scoreSnap.forEach(j => {
+          if (j.id === judgeId) {
+            temp[p.id] = j.data();
+          }
+        });
+      }
+
+      setScores(temp);
+    };
+
+    loadScores();
+  }, [judgeId]);
+
+  // 🔥 AUTO SAVE
+  const handleChange = async (pid, field, value) => {
+    const val = Math.max(0, Math.min(10, Number(value)));
+
+    const updated = {
+      ...scores[pid],
+      [field]: val
+    };
+
     setScores(prev => ({
       ...prev,
-      [id]: {
-        ...prev[id],
-        [field]: Number(value)
-      }
+      [pid]: updated
     }));
+
+    await setDoc(doc(db, "scores", pid, "judges", judgeId), {
+      ...updated,
+      updatedAt: new Date()
+    });
+
+    setSaved(prev => ({ ...prev, [pid]: true }));
+
+    setTimeout(() => {
+      setSaved(prev => ({ ...prev, [pid]: false }));
+    }, 1000);
   };
 
-  // 💾 Submit score
-  const handleSubmit = async (id) => {
-    const s = scores[id];
+  // 🔄 RESET SCORE
+  const resetScore = async (pid) => {
+    if (!window.confirm("Reset score for this participant?")) return;
 
-    if (!s) {
-      alert("Enter scores first ❌");
-      return;
-    }
+    await deleteDoc(doc(db, "scores", pid, "judges", judgeId));
 
-    const total =
-      (s.ramp || 0) +
-      (s.intro || 0) +
-      (s.question || 0) +
-      (s.talent || 0);
+    setScores(prev => {
+      const copy = { ...prev };
+      delete copy[pid];
+      return copy;
+    });
+  };
 
-    try {
-      await setDoc(doc(db, "scores", `${id}_${judgeEmail}`), {
-        participantId: id,
-        judge: judgeEmail,
-        ramp: s.ramp || 0,
-        intro: s.intro || 0,
-        question: s.question || 0,
-        talent: s.talent || 0,
-        total
-      });
-
-      alert("Score saved ✅");
-    } catch (error) {
-      console.error(error);
-      alert("Error saving ❌");
-    }
+  // 🎯 TOTAL SCORE (OUT OF 40)
+  const getTotal = (pid) => {
+    const s = scores[pid] || {};
+    return (
+      (s.rampWalk || 0) +
+      (s.introduction || 0) +
+      (s.questionnaire || 0) +
+      (s.talent || 0)
+    );
   };
 
   return (
     <div className="judge-container">
-        {judge && (
-  <div className="judge-header">
-    <img src={judge.photo} alt="judge" />
-    <h1>Welcome, {judge.name}</h1>
-  </div>
-)}
+
+      {/* HEADER */}
+      {judge && (
+        <div className="judge-header">
+          <img src={judge.photo} alt="judge" />
+          <h1>Welcome, {judge.name}</h1>
+        </div>
+      )}
 
       <div className="grid">
-        {participants.map((p) => (
-          <div className="card" key={p.id}>
-            <img src={p.photo} alt="" />
+        {participants.map(p => (
+          <motion.div
+            key={p.id}
+            className="card"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <img src={p.image} alt={p.name} />
             <h3>{p.name}</h3>
 
-            <input
-              type="number"
-              placeholder="Ramp (10)"
-              max="10"
-              onChange={(e) =>
-                handleChange(p.id, "ramp", e.target.value)
-              }
-            />
+            {/* 🎯 TOTAL SCORE */}
+            <h4 className="total-score">
+              Total: {getTotal(p.id)} / 40
+            </h4>
 
-            <input
-              type="number"
-              placeholder="Intro (10)"
-              max="10"
-              onChange={(e) =>
-                handleChange(p.id, "intro", e.target.value)
-              }
-            />
+            {["rampWalk","introduction","questionnaire","talent"].map(cat => (
+              <div key={cat} className="input-group">
+                <label>{cat}</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="10"
+                  value={scores[p.id]?.[cat] || ""}
+                  onChange={(e) =>
+                    handleChange(p.id, cat, e.target.value)
+                  }
+                />
+              </div>
+            ))}
 
-            <input
-              type="number"
-              placeholder="Question (10)"
-              max="10"
-              onChange={(e) =>
-                handleChange(p.id, "question", e.target.value)
-              }
-            />
+            {saved[p.id] && <p className="saved">Saved ✅</p>}
 
-            <input
-              type="number"
-              placeholder="Talent (10)"
-              max="10"
-              onChange={(e) =>
-                handleChange(p.id, "talent", e.target.value)
-              }
-            />
-
-            <button onClick={() => handleSubmit(p.id)}>
-              Submit
+            {/* 🔄 RESET BUTTON */}
+            <button className="reset-btn" onClick={() => resetScore(p.id)}>
+              Reset
             </button>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>
   );
-};
-
-export default JudgePanel;
+}
