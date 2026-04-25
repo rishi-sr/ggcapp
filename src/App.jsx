@@ -49,34 +49,11 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Login />} />
 
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute role="admin">
-                  <AdminPanel />
-                  <ResultReveal/>
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/reveal"
-              element={
-                <ProtectedRoute role="admin">
-                  <ResultReveal />
-                </ProtectedRoute>
-              }
-            />
+            
+            
 
-            <Route
-              path="/judge"
-              element={
-                <ProtectedRoute role="judge">
-                  <JudgePanel />
-                </ProtectedRoute>
-              }
-            />
+            
 
-            <Route path="/leaderboard" element={<Leaderboard />} />
             
           </Routes>
         </Router>
